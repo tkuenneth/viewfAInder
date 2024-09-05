@@ -77,7 +77,7 @@ fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
         hasCameraPermission = isGranted
     }
 
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(true) {
         if (ContextCompat.checkSelfPermission(
                 context, Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED
@@ -107,7 +107,7 @@ fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
                         .fillMaxWidth()
                         .weight(1F)
                         .verticalScroll(rememberScrollState()),
-                    style = MaterialTheme.typography.bodyLarge.merge(color = Color.White)
+                    style = MaterialTheme.typography.bodyLarge.merge(Color.White)
                 )
                 Button(
                     onClick = { mainViewModel.reset() },
