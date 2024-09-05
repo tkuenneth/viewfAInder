@@ -174,8 +174,7 @@ fun CameraPreview(updateBitmap: (Bitmap?) -> Unit, onClick: () -> Unit) {
             }
 
             val imageAnalyzer = ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST) // Use setBackpressureStrategy instead ofsetAnalysisMode
-                .build().also {
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build().also {
                     it.setAnalyzer(executor) { imageProxy ->
                         updateBitmap(imageProxy.toBitmap())
                         imageProxy.close()
