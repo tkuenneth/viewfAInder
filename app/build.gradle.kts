@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "de.thomaskuenneth.viewfainder"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "de.thomaskuenneth.viewfainder"
@@ -41,9 +41,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {
         resources {
