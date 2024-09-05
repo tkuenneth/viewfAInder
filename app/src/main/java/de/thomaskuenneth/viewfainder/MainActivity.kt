@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,11 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -99,44 +100,55 @@ fun MainScreen(
     askGemini: () -> Unit,
     reset: () -> Unit
 ) {
-    Box {
+    Box(contentAlignment = Alignment.Center) {
         if (hasCameraPermission) {
             CameraPreview(updateBitmap = { setBitmap(it) },
                 onClick = { if (uiState !is UiState.Success) askGemini() })
         }
-        if (uiState is UiState.Success) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Color(0xa0000000))
-                    .safeContentPadding()
-            ) {
-                MarkdownText(
-                    markdown = uiState.outputText,
+
+        when (uiState) {
+            is UiState.Success -> {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1F)
-                        .verticalScroll(rememberScrollState()),
-                    style = MaterialTheme.typography.bodyLarge.merge(Color.White)
-                )
-                Button(
-                    onClick = { reset() },
-                    modifier = Modifier
-                        .padding(all = 32.dp)
-                        .align(Alignment.End)
+                        .fillMaxSize()
+                        .background(color = Color(0xa0000000))
+                        .safeContentPadding()
                 ) {
-                    Text(text = stringResource(id = R.string.done))
+                    MarkdownText(
+                        markdown = uiState.outputText,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1F)
+                            .verticalScroll(rememberScrollState()),
+                        style = MaterialTheme.typography.bodyLarge.merge(Color.White)
+                    )
+                    Button(
+                        onClick = { reset() },
+                        modifier = Modifier
+                            .padding(all = 32.dp)
+                            .align(Alignment.End)
+                    ) {
+                        Text(text = stringResource(id = R.string.done))
+                    }
                 }
             }
-        } else if (uiState is UiState.Error) {
-            Text(
-                text = uiState.errorMessage,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.Red,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = Color(0xa0000000))
-            )
+
+            is UiState.Error -> {
+                Text(
+                    text = uiState.errorMessage,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.Red,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(color = Color(0xa0000000))
+                )
+            }
+
+            is UiState.Loading -> {
+                CircularProgressIndicator()
+            }
+
+            else -> {}
         }
     }
 }
