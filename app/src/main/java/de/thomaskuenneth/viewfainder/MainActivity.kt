@@ -102,7 +102,7 @@ fun MainScreen(
 ) {
     Box(contentAlignment = Alignment.Center) {
         if (hasCameraPermission) {
-            CameraPreview(updateBitmap = { setBitmap(it) },
+            CameraPreview(setBitmap = { setBitmap(it) },
                 onClick = { if (uiState !is UiState.Success) askGemini() })
         }
 
@@ -155,7 +155,7 @@ fun MainScreen(
 
 @OptIn(ExperimentalGetImage::class)
 @Composable
-fun CameraPreview(updateBitmap: (Bitmap?) -> Unit, onClick: () -> Unit) {
+fun CameraPreview(setBitmap: (Bitmap?) -> Unit, onClick: () -> Unit) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
@@ -176,7 +176,7 @@ fun CameraPreview(updateBitmap: (Bitmap?) -> Unit, onClick: () -> Unit) {
             val imageAnalyzer = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build().also {
                     it.setAnalyzer(executor) { imageProxy ->
-                        updateBitmap(imageProxy.toBitmap())
+                        setBitmap(imageProxy.toBitmap())
                         imageProxy.close()
                     }
                 }
