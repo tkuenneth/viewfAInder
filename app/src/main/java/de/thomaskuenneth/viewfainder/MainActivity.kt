@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,12 +30,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,8 +44,18 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.jeziellago.compose.markdowntext.MarkdownText
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 class MainActivity : ComponentActivity() {
+
+    private val cameraPermissionFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val launcher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        cameraPermissionFlow.update { granted }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -59,42 +65,46 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    MainScreen()
+                    val hasCameraPermission by cameraPermissionFlow.collectAsState()
+                    val mainViewModel: MainViewModel = viewModel()
+                    val uiState by mainViewModel.uiState.collectAsState()
+                    MainScreen(uiState = uiState,
+                        hasCameraPermission = hasCameraPermission,
+                        setBitmap = { mainViewModel.setBitmap(it) },
+                        askGemini = { mainViewModel.askGemini() },
+                        reset = { mainViewModel.reset() })
                 }
             }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            cameraPermissionFlow.update { true }
+        } else {
+            launcher.launch(Manifest.permission.CAMERA)
         }
     }
 }
 
 @Composable
-fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
-    val uiState by mainViewModel.uiState.collectAsState()
-    var hasCameraPermission by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        hasCameraPermission = isGranted
-    }
-
-    LaunchedEffect(true) {
-        if (ContextCompat.checkSelfPermission(
-                context, Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            hasCameraPermission = true
-        } else {
-            launcher.launch(Manifest.permission.CAMERA)
-        }
-    }
-
+fun MainScreen(
+    uiState: UiState,
+    hasCameraPermission: Boolean,
+    setBitmap: (Bitmap?) -> Unit,
+    askGemini: () -> Unit,
+    reset: () -> Unit
+) {
     Box {
         if (hasCameraPermission) {
-            CameraPreview(
-                updateBitmap = { mainViewModel.setBitmap(it) },
-                onClick = { mainViewModel.askGemini() })
+            CameraPreview(updateBitmap = { setBitmap(it) },
+                onClick = { if (uiState !is UiState.Success) askGemini() })
         }
-        (uiState as? UiState.Success)?.let {
+        if (uiState is UiState.Success) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -102,7 +112,7 @@ fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
                     .safeContentPadding()
             ) {
                 MarkdownText(
-                    markdown = it.outputText,
+                    markdown = uiState.outputText,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1F)
@@ -110,7 +120,7 @@ fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
                     style = MaterialTheme.typography.bodyLarge.merge(Color.White)
                 )
                 Button(
-                    onClick = { mainViewModel.reset() },
+                    onClick = { reset() },
                     modifier = Modifier
                         .padding(all = 32.dp)
                         .align(Alignment.End)
@@ -118,10 +128,9 @@ fun MainScreen(mainViewModel: MainViewModel = viewModel()) {
                     Text(text = stringResource(id = R.string.done))
                 }
             }
-        }
-        (uiState as? UiState.Error)?.let {
+        } else if (uiState is UiState.Error) {
             Text(
-                text = it.errorMessage,
+                text = uiState.errorMessage,
                 style = MaterialTheme.typography.bodyLarge,
                 color = Color.Red,
                 modifier = Modifier
