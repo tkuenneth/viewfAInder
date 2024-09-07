@@ -87,6 +87,7 @@ fun MainScreen(
             }
 
             is UiState.Initial -> {
+                DrawingArea()
                 val bitmap by viewModel.bitmap.collectAsState()
                 bitmap?.let {
                     Image(
