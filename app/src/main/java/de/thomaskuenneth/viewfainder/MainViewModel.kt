@@ -31,6 +31,7 @@ class MainViewModel : ViewModel() {
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private val _bitmap: MutableStateFlow<Bitmap?> = MutableStateFlow(null)
+    val bitmap = _bitmap.asStateFlow()
 
     private val generativeModel = GenerativeModel(
         modelName = modelName, apiKey = BuildConfig.apiKey
