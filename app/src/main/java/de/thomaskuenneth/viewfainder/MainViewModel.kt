@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 private const val prompt = """
     Explain what is visible in the image. First give a detailed description. 
-    Then Highlight the main elements, using a bullet point list
+    Then Highlight what is included inside the area surrounded with a red line.
 """
 private const val modelName = "gemini-1.5-pro"
 
@@ -43,10 +43,16 @@ class MainViewModel : ViewModel() {
         old?.recycle()
     }
 
+    fun getCopyOfBitmap(): Bitmap? = with (bitmap.value) { this?.copy(Bitmap.Config.ARGB_8888, true) }
+
     fun askGemini() {
         _bitmap.value?.let { bitmap ->
             sendPrompt(bitmap = bitmap)
         }
+    }
+
+    fun askGemini(bitmap: Bitmap) {
+            sendPrompt(bitmap = bitmap)
     }
 
     fun reset() {

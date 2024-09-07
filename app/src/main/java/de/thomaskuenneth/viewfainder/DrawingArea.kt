@@ -10,10 +10,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntSize
 
 @Composable
-fun DrawingArea() {
+fun DrawingArea(drawComplete: (IntSize, List<Offset>) -> Unit) {
     val points = remember { mutableStateListOf<Offset>() }
     Canvas(modifier = Modifier
         .fillMaxSize()
@@ -23,7 +25,12 @@ fun DrawingArea() {
                     val event = awaitPointerEvent()
                     val touch = event.changes.first()
                     points.add(touch.position)
-                    //if (!touch.pressed) points.clear()
+                    if (!touch.pressed) {
+                        if (points.size > 2) {
+                            drawComplete(size, points.toList())
+                        }
+                        points.clear()
+                    }
                 }
             }
         }) {
@@ -35,7 +42,7 @@ fun DrawingArea() {
                         lineTo(points[i].x, points[i].y)
                     }
                     close()
-                }, color = Color.Red, style = Fill
+                }, color = Color.Red, style = Stroke(width = 12F)
             )
         } else {
             points.forEach { point ->

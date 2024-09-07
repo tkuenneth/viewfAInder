@@ -1,5 +1,8 @@
 package de.thomaskuenneth.viewfainder
 
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PointF
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -87,7 +90,6 @@ fun MainScreen(
             }
 
             is UiState.Initial -> {
-                DrawingArea()
                 val bitmap by viewModel.bitmap.collectAsState()
                 bitmap?.let {
                     Image(
@@ -99,6 +101,30 @@ fun MainScreen(
                             .safeContentPadding()
                             .size(200.dp)
                     )
+                }
+                DrawingArea { size, points1 ->
+                    viewModel.getCopyOfBitmap()?.let {
+                        val xRatio = it.width.toFloat() / size.width.toFloat()
+                        val yRatio = it.height.toFloat() / size.height.toFloat()
+                        val points = points1.map { point ->
+                            PointF(point.x * xRatio, point.y * yRatio)
+                        }
+                        val canvas = Canvas(it)
+                        val path = android.graphics.Path()
+                        if (points.isNotEmpty()) {
+                            path.moveTo(points[0].x, points[0].y)
+                            for (i in 1 until points.size) {
+                                path.lineTo(points[i].x, points[i].y)
+                            }
+                            path.close()
+                        }
+                        canvas.drawPath(path, Paint().apply {
+                            style = Paint.Style.STROKE
+                            strokeWidth = 12f
+                            color = android.graphics.Color.RED
+                        })
+                        viewModel.askGemini(it)
+                    }
                 }
             }
         }
