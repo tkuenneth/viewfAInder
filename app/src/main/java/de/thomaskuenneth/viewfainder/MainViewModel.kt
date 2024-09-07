@@ -38,7 +38,9 @@ class MainViewModel : ViewModel() {
     )
 
     fun setBitmap(bitmap: Bitmap?) {
+        val old = _bitmap.value
         _bitmap.update { bitmap }
+        old?.recycle()
     }
 
     fun askGemini() {
