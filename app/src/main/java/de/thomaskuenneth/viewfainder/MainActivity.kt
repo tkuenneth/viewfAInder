@@ -133,6 +133,7 @@ class MainActivity : ComponentActivity() {
                         val rotatedBitmap = Bitmap.createBitmap(
                             bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
                         )
+                        bitmap.recycle()
                         setBitmap(rotatedBitmap)
                         imageProxy.close()
                     }
