@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -102,26 +103,26 @@ fun MainScreen(
                             .size(200.dp)
                     )
                 }
-                DrawingArea { size, points1 ->
+                DrawingArea { size, offsets ->
                     viewModel.getCopyOfBitmap()?.let {
                         val xRatio = it.width.toFloat() / size.width.toFloat()
                         val yRatio = it.height.toFloat() / size.height.toFloat()
-                        val points = points1.map { point ->
+                        val scaledOffsets = offsets.map { point ->
                             PointF(point.x * xRatio, point.y * yRatio)
                         }
                         val canvas = Canvas(it)
                         val path = android.graphics.Path()
-                        if (points.isNotEmpty()) {
-                            path.moveTo(points[0].x, points[0].y)
-                            for (i in 1 until points.size) {
-                                path.lineTo(points[i].x, points[i].y)
+                        if (scaledOffsets.isNotEmpty()) {
+                            path.moveTo(scaledOffsets[0].x, scaledOffsets[0].y)
+                            for (i in 1 until scaledOffsets.size) {
+                                path.lineTo(scaledOffsets[i].x, scaledOffsets[i].y)
                             }
                             path.close()
                         }
                         canvas.drawPath(path, Paint().apply {
                             style = Paint.Style.STROKE
-                            strokeWidth = 12f
-                            color = android.graphics.Color.RED
+                            strokeWidth = STROKE_WIDTH
+                            color = DRAWING_COLOR.toArgb()
                         })
                         viewModel.askGemini(it)
                     }

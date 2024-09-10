@@ -43,7 +43,8 @@ class MainViewModel : ViewModel() {
         old?.recycle()
     }
 
-    fun getCopyOfBitmap(): Bitmap? = with (bitmap.value) { this?.copy(Bitmap.Config.ARGB_8888, true) }
+    fun getCopyOfBitmap(): Bitmap? =
+        with(bitmap.value) { this?.copy(Bitmap.Config.ARGB_8888, true) }
 
     fun askGemini() {
         _bitmap.value?.let { bitmap ->
@@ -52,7 +53,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun askGemini(bitmap: Bitmap) {
-            sendPrompt(bitmap = bitmap)
+        sendPrompt(bitmap = bitmap)
     }
 
     fun reset() {
