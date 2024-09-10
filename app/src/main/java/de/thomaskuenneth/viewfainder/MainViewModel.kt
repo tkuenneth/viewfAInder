@@ -13,8 +13,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 private const val prompt = """
-    Explain what is visible in the image. First give a detailed description. 
-    Then Highlight what is included inside the area surrounded with a red line.
+  Please describe what is contained inside the area of the image
+  that is surrounded by a red line. If possible, add web links with
+  additional information
 """
 private const val modelName = "gemini-1.5-pro"
 
