@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PointF
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -20,18 +18,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.jeziellago.compose.markdowntext.MarkdownText
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
@@ -39,9 +35,12 @@ fun MainScreen(
     uiState: UiState,
     previewView: PreviewView,
     hasCameraPermission: Boolean,
+    roleStatus: RoleStatus,
+    requestRole: () -> Unit,
     askGemini: () -> Unit,
     reset: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     Box(contentAlignment = Alignment.Center) {
         if (hasCameraPermission) {
             CameraPreview(previewView = previewView,
@@ -91,18 +90,6 @@ fun MainScreen(
             }
 
             is UiState.Initial -> {
-                val bitmap by viewModel.bitmap.collectAsState()
-                bitmap?.let {
-                    Image(
-                        bitmap = it.asImageBitmap(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Inside,
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .safeContentPadding()
-                            .size(200.dp)
-                    )
-                }
                 DrawingArea { size, offsets ->
                     viewModel.getCopyOfBitmap()?.let {
                         val xRatio = it.width.toFloat() / size.width.toFloat()
@@ -128,6 +115,42 @@ fun MainScreen(
                     }
                 }
             }
+        }
+
+        when (roleStatus) {
+            RoleStatus.HELD -> {
+                println("yah")
+            }
+
+            RoleStatus.NOT_HELD -> {
+                Column(
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colorScheme.background)
+                        .padding(all = 24.dp), horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        text = stringResource(R.string.request_role_info),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Button(
+                        onClick = { scope.launch { requestRole() } },
+                    ) {
+                        Text(stringResource(R.string.request_role))
+                    }
+                }
+            }
+
+            RoleStatus.UNAVAILABLE -> {
+                Text(
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    text = stringResource(R.string.role_unavailable),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
         }
     }
 }
