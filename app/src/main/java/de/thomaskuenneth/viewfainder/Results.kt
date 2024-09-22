@@ -81,24 +81,7 @@ fun Results(
                             Action.VCARD -> {
                                 TextButton(
                                     onClick = {
-                                        scope.launch {
-                                            val parent =
-                                                Environment.getExternalStoragePublicDirectory(
-                                                    Environment.DIRECTORY_DOCUMENTS
-                                                ).also {
-                                                    it.mkdirs()
-                                                }
-                                            File(
-                                                parent, "vcard_${currentDateAndTimeAsString()}.vcf"
-                                            ).also { file ->
-                                                FileOutputStream(file).use { fos ->
-                                                    BufferedOutputStream(fos).use { bos ->
-                                                        bos.write(action.second.toByteArray())
-                                                        bos.flush()
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        scope.launch { saveVCF(action.second) }
                                     },
                                     modifier = Modifier
                                         .padding(top = 16.dp)
@@ -146,4 +129,22 @@ private val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
 private fun currentDateAndTimeAsString(): String {
     val now = LocalDateTime.now()
     return now.format(formatter)
+}
+
+private fun saveVCF(data: String) {
+    val parent = Environment.getExternalStoragePublicDirectory(
+        Environment.DIRECTORY_DOCUMENTS
+    ).also {
+        it.mkdirs()
+    }
+    File(
+        parent, "vcard_${currentDateAndTimeAsString()}.vcf"
+    ).also { file ->
+        FileOutputStream(file).use { fos ->
+            BufferedOutputStream(fos).use { bos ->
+                bos.write(data.toByteArray())
+                bos.flush()
+            }
+        }
+    }
 }
