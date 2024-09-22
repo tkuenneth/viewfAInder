@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity() {
                         prefs.edit().putBoolean(PREFS_SHOW_MESSAGE, false).apply()
                         shouldShowMessage = false
                     },
-                    reset = { mainViewModel.reset() })
+                    reset = { finish() })
             }
         }
     }

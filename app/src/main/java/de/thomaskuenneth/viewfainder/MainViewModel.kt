@@ -21,6 +21,7 @@ private val prompt_01 = """
   Describe what is contained inside the thick red line inside the image.
   Give a short description, followed by a bullet point list with all important details.
   Add web links with additional information for each bullet point items when available.
+  Choose Wikipedia if possible.
   If there are details related to appointments, locations, addresses,
   mention these explicitly
 """.trimIndent()
