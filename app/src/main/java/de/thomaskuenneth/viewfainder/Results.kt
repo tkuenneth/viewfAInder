@@ -2,6 +2,7 @@ package de.thomaskuenneth.viewfainder
 
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -61,6 +62,7 @@ fun Results(
                 .safeContentPadding()
         ) {
             Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
@@ -97,9 +99,10 @@ fun Results(
                     Text(
                         text = uiState.errorMessage,
                         modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.errorContainer)
                             .align(Alignment.CenterHorizontally)
-                            .padding(vertical = 16.dp),
-                        style = MaterialTheme.typography.bodyLarge.merge(MaterialTheme.colorScheme.onBackground)
+                            .padding(all = 16.dp),
+                        style = MaterialTheme.typography.bodyLarge.merge(MaterialTheme.colorScheme.onErrorContainer)
                     )
                 }
                 RoleChecker(
