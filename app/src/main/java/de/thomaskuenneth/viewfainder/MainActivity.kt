@@ -110,6 +110,15 @@ class MainActivity : ComponentActivity() {
                 MainScreen(uiState = uiState,
                     previewView = previewView,
                     hasCameraPermission = hasCameraPermission,
+                    setup = {
+                        setupCamera(
+                            future = future,
+                            lifecycleOwner = this@MainActivity,
+                            previewView = previewView,
+                            executor = executor,
+                            rotation = display.rotation
+                        ) { mainViewModel.setBitmap(it) }
+                    },
                     roleStatus = roleObtained,
                     shouldShowMessage = shouldShowMessage,
                     requestRole = requestRole,

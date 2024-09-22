@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -17,8 +18,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 
 @OptIn(ExperimentalGetImage::class)
 @Composable
-fun CameraPreview(hasCameraPermission: Boolean, previewView: PreviewView, onClick: () -> Unit) {
+fun CameraPreview(
+    previewView: PreviewView,
+    hasCameraPermission: Boolean,
+    setup: () -> Unit,
+    onClick: () -> Unit
+) {
     if (hasCameraPermission) {
+        LaunchedEffect(Unit) { setup() }
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
             AndroidView(modifier = Modifier.fillMaxSize(), factory = { previewView })
             FloatingActionButton(
