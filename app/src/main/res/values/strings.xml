@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">viewfAInder</string>
     <string name="done">Done</string>
-    <string name="request_role_info">Project viewfAInder currently is not your digital assistant</string>
+    <string name="role_not_held">This app currently is not your default digital assistant.</string>
     <string name="request_role">Request role</string>
-    <string name="role_unavailable">The role is unavailable</string>
+    <string name="hide_message">Hide this message</string>
+    <string name="role_unavailable">ROLE_ASSISTANT is unavailable</string>
+    <string name="add_to_calendar">Add to calendar</string>
+    <string name="shutter">Shutter</string>
+    <string name="info">Draw a circle or box to highlight the area you want to learn more about</string>
 </resources>

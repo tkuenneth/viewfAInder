@@ -21,6 +21,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.core.role.RoleManagerCompat
 import androidx.lifecycle.LifecycleOwner
@@ -35,6 +38,8 @@ enum class RoleStatus {
 }
 
 fun getRoleStatus(held: Boolean): RoleStatus = if (held) RoleStatus.HELD else RoleStatus.NOT_HELD
+
+private const val PREFS_SHOW_MESSAGE = "hide_message"
 
 class MainActivity : ComponentActivity() {
 
@@ -73,8 +78,22 @@ class MainActivity : ComponentActivity() {
             roleLauncher.launch(intent)
         }
 
+        val prefs = getSharedPreferences(this::class.java.simpleName, MODE_PRIVATE)
         setContent {
-            MaterialTheme {
+            MaterialTheme(colorScheme = defaultColorScheme()) {
+                // Please note: some variables (like this one) have not been moved
+                // to the ViewModel or ui state to keep things simple; the ViewModel
+                // should not keep a reference to the Context, so we instead would
+                // inject a PreferencesRepository, and a RoleManager, and possibly more ;-)
+                // That's too much for a demo.
+                var shouldShowMessage by remember {
+                    mutableStateOf(
+                        prefs.getBoolean(
+                            PREFS_SHOW_MESSAGE,
+                            true
+                        )
+                    )
+                }
                 val hasCameraPermission by cameraPermissionFlow.collectAsState()
                 val roleObtained by roleFlow.collectAsState()
                 val mainViewModel: MainViewModel = viewModel()
@@ -92,8 +111,12 @@ class MainActivity : ComponentActivity() {
                     previewView = previewView,
                     hasCameraPermission = hasCameraPermission,
                     roleStatus = roleObtained,
+                    shouldShowMessage = shouldShowMessage,
                     requestRole = requestRole,
-                    askGemini = { mainViewModel.askGemini() },
+                    hideMessage = {
+                        prefs.edit().putBoolean(PREFS_SHOW_MESSAGE, false).apply()
+                        shouldShowMessage = false
+                    },
                     reset = { mainViewModel.reset() })
             }
         }
