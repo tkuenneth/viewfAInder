@@ -38,12 +38,16 @@ private val prompt_03 = """
     Use the information that follows after the colon: %s
 """.trimIndent()
 
+enum class Action {
+    VCARD
+}
+
 sealed interface UiState {
     data object Previewing : UiState
     data object Selecting : UiState
     data object Loading : UiState
     data class Error(val errorMessage: String) : UiState
-    data class Success(val description: String, val actions: List<Pair<Int, String>>) : UiState
+    data class Success(val description: String, val actions: List<Pair<Action, String>>) : UiState
 }
 
 class MainViewModel : ViewModel() {
@@ -84,7 +88,7 @@ class MainViewModel : ViewModel() {
         _uiState.update { UiState.Loading }
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val actions = mutableListOf<Pair<Int, String>>()
+                val actions = mutableListOf<Pair<Action, String>>()
                 // First step: send the bitmap and get the description
                 val description = generativeModel.generateContent(content {
                     image(bitmap)
@@ -100,9 +104,8 @@ class MainViewModel : ViewModel() {
                         }).text) {
                             val data = this?.replace("```vcard", "")?.replace("```", "") ?: ""
                             if (data.isNotEmpty()) {
-                                actions.add(Pair(R.string.add_to_calendar, data))
+                                actions.add(Pair(Action.VCARD, data))
                             }
-
                         }
                     }
                 }

@@ -5,7 +5,7 @@
     <string name="request_role">Request role</string>
     <string name="hide_message">Hide this message</string>
     <string name="role_unavailable">ROLE_ASSISTANT is unavailable</string>
-    <string name="add_to_calendar">Add to calendar</string>
+    <string name="add_to_contacts">Add to contacts</string>
     <string name="shutter">Shutter</string>
     <string name="info">Draw a circle or box to highlight the area you want to learn more about</string>
 </resources>

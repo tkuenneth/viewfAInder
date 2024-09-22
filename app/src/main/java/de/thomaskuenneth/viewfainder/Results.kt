@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,19 +71,26 @@ fun Results(
                         style = MaterialTheme.typography.bodyLarge.merge(MaterialTheme.colorScheme.onBackground)
                     )
                     uiState.actions.forEach { action ->
-                        Button(
-                            onClick = {
-                                scope.launch {
-                                    val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                                        putExtra(Intent.EXTRA_TEXT, action.second)
-                                        type = "text/vcard"
-                                    }
-                                    val shareIntent = Intent.createChooser(sendIntent, null)
-                                    context.startActivity(shareIntent)
+                        when (action.first) {
+                            Action.VCARD -> {
+                                TextButton(
+                                    onClick = {
+                                        scope.launch {
+                                            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                                putExtra(Intent.EXTRA_TEXT, action.second)
+                                                type = "text/vcard"
+                                            }
+                                            val shareIntent = Intent.createChooser(sendIntent, null)
+                                            context.startActivity(shareIntent)
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .padding(top = 16.dp)
+                                        .align(Alignment.CenterHorizontally)
+                                ) {
+                                    Text(text = stringResource(id = R.string.add_to_contacts))
                                 }
-                            }, modifier = Modifier.padding(all = 32.dp)
-                        ) {
-                            Text(text = stringResource(id = action.first))
+                            }
                         }
                     }
                 } else if (uiState is UiState.Error) {
