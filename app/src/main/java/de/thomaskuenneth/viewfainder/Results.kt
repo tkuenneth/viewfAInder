@@ -1,6 +1,6 @@
 package de.thomaskuenneth.viewfainder
 
-import android.content.Intent
+import android.os.Environment
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,13 +24,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 
 const val WEIGHT_IMAGE = 0.3F
 
@@ -45,7 +50,6 @@ fun Results(
     scope: CoroutineScope,
     reset: () -> Unit
 ) {
-    val context = LocalContext.current
     val density = LocalDensity.current
     var gap by remember { mutableStateOf(0.dp) }
     Column(
@@ -78,19 +82,29 @@ fun Results(
                                 TextButton(
                                     onClick = {
                                         scope.launch {
-                                            val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                                                putExtra(Intent.EXTRA_TEXT, action.second)
-                                                type = "text/vcard"
+                                            val parent =
+                                                Environment.getExternalStoragePublicDirectory(
+                                                    Environment.DIRECTORY_DOCUMENTS
+                                                ).also {
+                                                    it.mkdirs()
+                                                }
+                                            File(
+                                                parent, "vcard_${currentDateAndTimeAsString()}.vcf"
+                                            ).also { file ->
+                                                FileOutputStream(file).use { fos ->
+                                                    BufferedOutputStream(fos).use { bos ->
+                                                        bos.write(action.second.toByteArray())
+                                                        bos.flush()
+                                                    }
+                                                }
                                             }
-                                            val shareIntent = Intent.createChooser(sendIntent, null)
-                                            context.startActivity(shareIntent)
                                         }
                                     },
                                     modifier = Modifier
                                         .padding(top = 16.dp)
                                         .align(Alignment.CenterHorizontally)
                                 ) {
-                                    Text(text = stringResource(id = R.string.add_to_contacts))
+                                    Text(text = stringResource(id = R.string.save_as_vcf_file))
                                 }
                             }
                         }
@@ -125,4 +139,11 @@ fun Results(
             }
         }
     }
+}
+
+private val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
+
+private fun currentDateAndTimeAsString(): String {
+    val now = LocalDateTime.now()
+    return now.format(formatter)
 }
