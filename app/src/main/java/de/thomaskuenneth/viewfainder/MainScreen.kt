@@ -21,7 +21,7 @@ fun MainScreen(
     shouldShowMessage: Boolean,
     requestRole: () -> Unit,
     hideMessage: () -> Unit,
-    reset: () -> Unit
+    finish: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val results: @Composable () -> Unit = {
@@ -33,7 +33,7 @@ fun MainScreen(
             requestRole = requestRole,
             hideMessage = hideMessage,
             scope = scope,
-            reset = reset
+            finish = finish
         )
     }
     Box(modifier = Modifier.fillMaxSize()) {

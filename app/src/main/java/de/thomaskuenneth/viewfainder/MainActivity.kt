@@ -89,8 +89,7 @@ class MainActivity : ComponentActivity() {
                 var shouldShowMessage by remember {
                     mutableStateOf(
                         prefs.getBoolean(
-                            PREFS_SHOW_MESSAGE,
-                            true
+                            PREFS_SHOW_MESSAGE, true
                         )
                     )
                 }
@@ -126,7 +125,7 @@ class MainActivity : ComponentActivity() {
                         prefs.edit().putBoolean(PREFS_SHOW_MESSAGE, false).apply()
                         shouldShowMessage = false
                     },
-                    reset = { finish() })
+                    finish = { finish() })
             }
         }
     }

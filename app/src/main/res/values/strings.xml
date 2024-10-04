@@ -9,4 +9,6 @@
     <string name="shutter">Shutter</string>
     <string name="info">Draw a circle or box to highlight the area you want to learn more about</string>
     <string name="chooser">Please choose an app</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="start_over">Start over</string>
 </resources>

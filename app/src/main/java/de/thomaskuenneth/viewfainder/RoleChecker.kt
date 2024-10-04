@@ -33,7 +33,8 @@ fun RoleChecker(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = stringResource(R.string.role_not_held),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         TextButton(
