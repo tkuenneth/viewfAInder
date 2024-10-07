@@ -39,8 +39,19 @@ private val prompt_03 = """
     Use the information that follows after the colon: %s
 """.trimIndent()
 
+private val prompt_04 = """
+    Does the following text contain the words Deutsche Post and does it also
+    include the word Sendungsinformationen? if so, list all 12 digit numbers
+    that appear after Sendungsinformationen. Answer only with the list of numbers.
+    If there is not at least one 12 digit number below the word Sendungsinformationen
+    answer with: No 12 digit numbers found.
+    Add no additional information or explanations to your answer, just provide the list as
+    described or "No 12 digit numbers found" if not.
+    Use the information that follows after the colon: %s
+""".trimIndent()
+
 enum class Action {
-    VCARD
+    VCARD, TRACKING_NUMBER
 }
 
 sealed interface UiState {
@@ -90,7 +101,6 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val actions = mutableListOf<Pair<Action, String>>()
-                // First step: send the bitmap and get the description
                 val description = generativeModel.generateContent(content {
                     image(bitmap)
                     text(prompt_01)
@@ -108,6 +118,14 @@ class MainViewModel : ViewModel() {
                                 actions.add(Pair(Action.VCARD, data))
                             }
                         }
+                    }
+                }
+                with(generativeModel.generateContent(content {
+                    text(String.format(prompt_04, description))
+                }).text) {
+                    val digits = Regex("\\d{12}").find(this.toString())?.value ?: ""
+                    if (digits.isNotEmpty()) {
+                        actions.add(Pair(Action.TRACKING_NUMBER, digits))
                     }
                 }
                 // Final step: update ui

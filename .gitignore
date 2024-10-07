@@ -19,3 +19,4 @@ local.properties
 .idea/kotlinc.xml
 .idea/inspectionProfiles/Project_Default.xml
 .idea/other.xml
+.idea/emulatorDisplays.xml

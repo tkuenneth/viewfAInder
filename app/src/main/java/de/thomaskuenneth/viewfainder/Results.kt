@@ -66,6 +66,8 @@ fun Results(
 ) {
     val density = LocalDensity.current
     var gap by remember { mutableStateOf(0.dp) }
+    val clipboardManager = LocalClipboardManager.current
+    val copyToClipBoard: (String) -> Unit = { s -> clipboardManager.setText(AnnotatedString(s)) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -102,8 +104,7 @@ fun Results(
                             },
                             state = rememberTooltipState()
                         ) {
-                            val clipboardManager = LocalClipboardManager.current
-                            IconButton(onClick = { clipboardManager.setText(AnnotatedString(uiState.description)) }) {
+                            IconButton(onClick = { copyToClipBoard(uiState.description) }) {
                                 Icon(
                                     painter = painterResource(R.drawable.baseline_content_copy_24),
                                     tint = MaterialTheme.colorScheme.primary,
@@ -124,6 +125,23 @@ fun Results(
                                         .align(Alignment.CenterHorizontally)
                                 ) {
                                     Text(text = stringResource(id = R.string.save_as_vcf_file))
+                                }
+                            }
+
+                            Action.TRACKING_NUMBER -> {
+                                TextButton(
+                                    onClick = {
+                                        scope.launch { copyToClipBoard(action.second) }
+                                    },
+                                    modifier = Modifier
+                                        .padding(top = 16.dp)
+                                        .align(Alignment.CenterHorizontally)
+                                ) {
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.copy_something_to_clipboard, action.second
+                                        )
+                                    )
                                 }
                             }
                         }

@@ -11,4 +11,5 @@
     <string name="chooser">Please choose an app</string>
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="start_over">Start over</string>
+    <string name="copy_something_to_clipboard">Copy %1$s to clipboard</string>
 </resources>
