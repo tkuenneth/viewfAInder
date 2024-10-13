@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.width
@@ -36,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -73,20 +77,33 @@ fun Results(
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background)
     ) {
-        Box(modifier = Modifier.weight(WEIGHT_IMAGE)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(WEIGHT_IMAGE)
+        ) {
             CapturedImage(viewModel)
         }
         Box(
             modifier = Modifier
+                .fillMaxWidth()
                 .weight(1F - WEIGHT_IMAGE)
-                .safeContentPadding()
         ) {
+            val horizontal = with(LocalDensity.current) {
+                WindowInsets.displayCutout.getLeft(
+                    this, LocalLayoutDirection.current
+                ).toDp()
+            }
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(horizontal = horizontal)
+                    .padding(horizontal = 24.dp)
                     .verticalScroll(rememberScrollState())
             ) {
+                Spacer(modifier = Modifier.height(16.dp))
                 if (uiState is UiState.Success) {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         MarkdownText(
@@ -116,27 +133,17 @@ fun Results(
                     uiState.actions.forEach { action ->
                         when (action.first) {
                             Action.VCARD -> {
-                                TextButton(
-                                    onClick = {
-                                        scope.launch { saveVCF(action.second) }
-                                    },
-                                    modifier = Modifier
-                                        .padding(top = 16.dp)
-                                        .align(Alignment.CenterHorizontally)
-                                ) {
+                                TextButton(onClick = {
+                                    scope.launch { save(action.second, "vcard", "vcf") }
+                                }) {
                                     Text(text = stringResource(id = R.string.save_as_vcf_file))
                                 }
                             }
 
                             Action.TRACKING_NUMBER -> {
-                                TextButton(
-                                    onClick = {
-                                        scope.launch { copyToClipBoard(action.second) }
-                                    },
-                                    modifier = Modifier
-                                        .padding(top = 16.dp)
-                                        .align(Alignment.CenterHorizontally)
-                                ) {
+                                TextButton(onClick = {
+                                    scope.launch { copyToClipBoard(action.second) }
+                                }) {
                                     Text(
                                         text = stringResource(
                                             id = R.string.copy_something_to_clipboard, action.second
@@ -164,11 +171,17 @@ fun Results(
                     requestRole = requestRole,
                     hideMessage = hideMessage
                 )
-                Spacer(modifier = Modifier.height(gap))
+                val heightNavigation = with(LocalDensity.current) {
+                    with(WindowInsets.navigationBars) {
+                        getBottom(density) - getTop(density)
+                    }.toDp()
+                }
+                Spacer(modifier = Modifier.height(16.dp + gap + heightNavigation))
             }
             Row(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
+                    .safeContentPadding()
                     .onGloballyPositioned {
                         gap = with(density) { it.size.height.toDp() }
                     }, horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -195,14 +208,14 @@ private fun currentDateAndTimeAsString(): String {
     return now.format(formatter)
 }
 
-private fun saveVCF(data: String) {
+private fun save(data: String, prefix: String, suffix: String) {
     val parent = Environment.getExternalStoragePublicDirectory(
         Environment.DIRECTORY_DOCUMENTS
     ).also {
         it.mkdirs()
     }
     File(
-        parent, "vcard_${currentDateAndTimeAsString()}.vcf"
+        parent, "${prefix}_${currentDateAndTimeAsString()}.$suffix"
     ).also { file ->
         FileOutputStream(file).use { fos ->
             BufferedOutputStream(fos).use { bos ->
