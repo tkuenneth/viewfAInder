@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -153,7 +154,7 @@ class MainActivity : ComponentActivity() {
         future.addListener({
             val cameraProvider = future.get()
             val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
+                it.surfaceProvider = previewView.surfaceProvider
             }
             val imageAnalyzer = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build().also {
@@ -177,8 +178,12 @@ class MainActivity : ComponentActivity() {
                     lifecycleOwner, CameraSelector.DEFAULT_BACK_CAMERA, preview, imageAnalyzer
                 )
             } catch (e: Exception) {
-                // Handle exceptions, e.g., log the error
+                Log.e(TAG, "error during unbindAll() or bindToLifecycle()", e)
             }
         }, executor)
+    }
+
+    companion object {
+        val TAG: String = MainActivity::class.java.simpleName
     }
 }
