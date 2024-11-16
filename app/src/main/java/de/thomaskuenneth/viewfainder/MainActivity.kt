@@ -40,7 +40,7 @@ enum class RoleStatus {
 
 fun getRoleStatus(held: Boolean): RoleStatus = if (held) RoleStatus.HELD else RoleStatus.NOT_HELD
 
-private const val PREFS_SHOW_MESSAGE = "hide_message"
+private const val PREFS_SHOW_MESSAGE = "show_message"
 
 class MainActivity : ComponentActivity() {
 
