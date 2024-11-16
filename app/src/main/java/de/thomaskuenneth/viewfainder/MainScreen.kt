@@ -16,7 +16,6 @@ fun MainScreen(
     uiState: UiState,
     previewView: PreviewView,
     hasCameraPermission: Boolean,
-    setup: () -> Unit,
     roleStatus: RoleStatus,
     shouldShowMessage: Boolean,
     requestRole: () -> Unit,
@@ -39,10 +38,8 @@ fun MainScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         when (uiState) {
             is UiState.Previewing -> {
-                CameraPreview(
-                    previewView = previewView,
+                CameraPreview(previewView = previewView,
                     hasCameraPermission = hasCameraPermission,
-                    setup = setup,
                     onClick = { viewModel.startSelecting() })
             }
 
