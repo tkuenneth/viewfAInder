@@ -51,6 +51,8 @@ android {
 
 dependencies {
 
+    implementation(libs.material)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.role)
     implementation(libs.androidx.lifecycle.runtime.ktx)

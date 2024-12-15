@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.2"
+agp = "8.7.3"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 coreRole = "1.0.0"
@@ -9,11 +9,12 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 lifecycleViewmodelCompose = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.11.00"
+composeBom = "2024.12.01"
 generativeai = "0.9.0"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
-camerax = "1.4.0"
+camerax = "1.4.1"
 composeMarkdown = "0.5.3"
+material = "1.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycl
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 
 compose-markdown = { group = "com.github.jeziellago", name = "compose-markdown", version.ref = "composeMarkdown"}
+material = { module = "com.google.android.material:material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

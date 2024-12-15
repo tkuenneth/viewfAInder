@@ -109,6 +109,7 @@ fun Results(
                         MarkdownText(
                             modifier = Modifier.weight(1.0F),
                             markdown = uiState.description,
+                            isTextSelectable = true,
                             style = MaterialTheme.typography.bodyLarge.merge(MaterialTheme.colorScheme.onBackground)
                         )
                         Spacer(modifier = Modifier.width(16.dp))
